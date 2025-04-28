@@ -5,7 +5,7 @@ import nc_lab4_functions as l4
 import importlib
 
 
-
+############################################################################
 # Block 1:  set up github
 #   1.  Get set up with an account on GitHub
 #   2.  Associate your GitHub account with your GitHub Desktop
@@ -14,7 +14,7 @@ import importlib
 #   5.  Create a new branch for your work
 #   6.  Create a new folder in the repository for this class
 
-
+############################################################################
 # Block 2:  Prep and point to your Arc project for this week
 #   If you have not already, create a new ArcGIS Pro project for this class
 #      that is parallel to the code folder you set up in the prior step. 
@@ -47,12 +47,13 @@ print(r.metadata["bounds"])
 #  Why do we need to use the "super()" function in the definition of the SmartRaster?
 
 # Your answer:
+'''
+The `super()` function makes it so that the SmartRaster inherits all the properties of the arcpy.Raster class.
+Calling `super().__init__(raster_path)` ensures that all the normal initializing behavior of an arcpy.Raster happens first.
+Without this function, the SmartRaster would not properly behave like a Raster, and we would lose all built-in ArcPy functionality.
+'''
 
-
-
-
-
-
+############################################################################
 # Block 4:  Add a method to the SmartRaster class to calculate the NDVI
 #
 #    First, UNCOMMENT MY CODE FOR CALCULATE_NDVI
@@ -68,6 +69,7 @@ print(r.metadata["bounds"])
 
 #  Again, you'll need to add code to the calculate_ndvi function
 
+importlib.reload(l4)
 okay, ndvi = r.calculate_ndvi()
 
 # Assuming this is okay, write it to a new raster that we can use later
@@ -93,11 +95,11 @@ else:
 #    set them here -- why did it work?
 
 #  Your answer:
+'''
+It worked because the arguments `band4_index=4` and `band3_index=3` were defined in the function itself. This means that if no specific band indices are provided when calling `calculate_ndvi()`, Python uses Band 4 for NIR and Band 3 for Red by default.
+'''
 
-
-
-
-##########################################################
+############################################################################
 # Block 5:  Now, let's look at setting up an equivalent type of
 #  vector object.  This is going to be different because there
 #  really isn't one in Arc the same way there is for Rasters.
@@ -119,8 +121,6 @@ else:
 #     the NDVI image we just created into a new
 #     field called mean_ndvi
 
-
-importlib.reload(l4)
 fc = "Corvallis_parcels" # remember you should have copied this into your workspace in Block 2.
 
 #Load the fc as a smart vector layer
@@ -141,13 +141,13 @@ smart_vector.save_as("Corvallis_parcels_plusNDVI")
 #     reasonably?  Any observations or oddities? 
 # 
 
-#Your answer
+#Your answer:
+'''
+The zonal statistics seemed to work correctly, as the new 'NDVI_mean' field was populated for each parcel in the Corvallis_parcels_plusNDVI file.
+There is some expected variation: parcels with large green areas (parks, forests, backyards) had higher mean NDVI, while highly developed parcels (downtown, commercial) had lower or near-zero NDVI. One minor oddity was a few parcels with no NDVI value (null), likely because those parcels had no overlapping NDVI pixels or were too small to capture data properly.
+'''
 
-
-
-
-
-
+############################################################################
 # Block 6: 
 #  Now we'll add functionality to pull this information 
 #   into a Pandas data frame
@@ -158,7 +158,6 @@ smart_vector.save_as("Corvallis_parcels_plusNDVI")
 #  and add the small chunk of code I have asked you
 #  to do.  Most of the functionality is already there
 
-
 okay, df = smart_vector.extract_to_pandas_df()
 
 
@@ -168,13 +167,12 @@ okay, df = smart_vector.extract_to_pandas_df()
 #   call to the method, and how do I use it in the
 #   code?  
 
-# Your answer
+# Your answer:
+'''
+Setting `fields=None` makes the argument optional. If the fields to extract aren't specified, it will pull all non-geometry fields from the feature class. This makes the function flexible since it can either return a custom subset of fields (if fields are provided) or the full attribute table.
+'''
 
-
-
-
-
-#################################################
+############################################################################
 # Block 7: 
 #  Now we're going to take advantage of the Pandas
 #   link with matplotlib to make a graph
@@ -210,7 +208,7 @@ sp.scatterplot(x_field, y_field, x_min=1901, x_max = 2030)
 
 
 
-###############################################################
+############################################################################
 #  Block 8
 
 #  For our final show, we'll read the parameters we want to make

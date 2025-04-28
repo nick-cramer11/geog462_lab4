@@ -1,0 +1,4 @@
+Param,Value
+x_field,YEAR_BUILT
+y_field ,NDVI_mean
+outfile,scatterplot_YearBuilt_vs_NDVI_mean.png

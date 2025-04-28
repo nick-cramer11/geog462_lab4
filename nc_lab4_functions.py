@@ -31,207 +31,186 @@ class SmartRaster(arcpy.Raster):
             "pixelType": pixelType
         }
 
+    def calculate_ndvi(self,  band4_index = 4, band3_index = 3):
 
-    # def calculate_ndvi(self,  band4_index = 4, band3_index = 3):
-
-    #     """Calculate NDVI using the NIR and Red bands."""
+        """Calculate NDVI using the NIR and Red bands."""
        
-    #     # set up an indicator about whether things work for later
-    #     okay = True
+        # Indicator about whether things work
+        okay = True
 
-    #     #embed everything in a try/except block
-    #     # First get the bands.  You can use the band numbers to get the bands
-    #     #   from the raster. 
+        try:
+            # Load the NIR and Red bands
+            nir = arcpy.Raster(self.raster_path + f"/Band_{band4_index}")
+            red = arcpy.Raster(self.raster_path + f"/Band_{band3_index}")
 
-    #     # Your code:
+            from arcpy.sa import Divide, Float, Minus, Plus
 
+            # Calculate NDVI = (NIR - Red) / (NIR + Red)
+            numerator = Float(nir - red)
+            denominator = Float(nir + red)
 
-      
+            ndvi = Divide(numerator, denominator)
 
+            return okay, ndvi
 
-
-    #     # Now we have the two bands.    
-    #     #   calculate (NIR-Red)/(NIR+red), which is the formula for
-    #     #   NDVI. 
-
-    #     #  Embed in a try/except block, so we can catch any errors that might occur
-
-    #     # Calculate the NDVI, and return an "okay, ndvi" if it worked, 
-    #     #   okay, e as the exception if it didn't.
-
-    #     #your code:
-
-
-       
-
-
-
+        except Exception as e:
+            okay = False
+            return okay, e
 
 
 
 
 # Potential smart vector layer
 
-# class SmartVectorLayer:
-#     def __init__(self, feature_class_path):
-#         """Initialize with a path to a vector feature class"""
-#         self.feature_class = feature_class_path
+class SmartVectorLayer:
+    def __init__(self, feature_class_path):
+        """Initialize with a path to a vector feature class"""
+        self.feature_class = feature_class_path
         
-#         # Check if it exists
-#         if not arcpy.Exists(self.feature_class):
-#             raise FileNotFoundError(f"{self.feature_class} does not exist.")
-#     def summarize_field(self, field):
-#         # set up a tracking variable to track if things work
-#         okay = True
+        # Check if it exists
+        if not arcpy.Exists(self.feature_class):
+            raise FileNotFoundError(f"{self.feature_class} does not exist.")
+    def summarize_field(self, field):
+        # set up a tracking variable to track if things work
+        okay = True
 
-#         #check if the field is in the legit list
-#         try: 
-#             existing_fields = [f.name for f in arcpy.ListFields(self.feature_class)]
-#             if field not in existing_fields:
-#                 okay = False
-#                 print(f"The field {field} is not in list of possible fields")
-#                 return False, None
-#         except Exception as e:
-#             print(f"Problem checking the fields: {e}")
+        #check if the field is in the legit list
+        try: 
+            existing_fields = [f.name for f in arcpy.ListFields(self.feature_class)]
+            if field not in existing_fields:
+                okay = False
+                print(f"The field {field} is not in list of possible fields")
+                return False, None
+        except Exception as e:
+            print(f"Problem checking the fields: {e}")
 
-#         # now go through and get the mean value
-#         try: 
-#             with arcpy.da.SearchCursor(self.feature_class, [field]) as cursor:
-#                 vals = [row[0] for row in cursor if row[0] is not None and not math.isnan(row[0])]
-#             mean = sum(vals)/len(vals)
-#             return okay, mean
-#         except Exception as e:
-#             print(f"Problem calculating mean: {e}")
-#             okay = False
-#             return okay, None
+        # now go through and get the mean value
+        try: 
+            with arcpy.da.SearchCursor(self.feature_class, [field]) as cursor:
+                vals = [row[0] for row in cursor if row[0] is not None and not math.isnan(row[0])]
+            mean = sum(vals)/len(vals)
+            return okay, mean
+        except Exception as e:
+            print(f"Problem calculating mean: {e}")
+            okay = False
+            return okay, None
 
     
-#     def zonal_stats_to_field(self, raster_path, statistic_type="MEAN", output_field="ZonalStat"):
-#         """
-#         For each feature in the vector layer, calculates the zonal statistic from the raster
-#         and writes it to a new field.
-        
-#         Parameters:
-#         - raster_path: path to the raster
-#         - statistic_type: type of statistic ("MEAN", "SUM", etc.)
-#         - output_field: name of the field to create to store results
-#         """
-#         # set up a tracking variable to track if things work
-#         okay = True
+    def zonal_stats_to_field(self, raster_path, statistic_type="MEAN", output_field="ZonalStat"):
+        """
+        For each feature in the vector layer, calculates the zonal statistic from the raster
+        and writes it to a new field.
+        """
+        okay = True
 
-#         # Add a field to store the zonal stats result.
-#         #  If the field already exists, however, return to the user
-#         #  to let them know that it exists. 
+        # Step 1: Add output field (if it does not exist)
+        try:
+            existing_fields = [f.name for f in arcpy.ListFields(self.feature_class)]
+            if output_field in existing_fields:
+                print(f"Field {output_field} already exists. Aborting field creation.")
+            else:
+                arcpy.management.AddField(self.feature_class, output_field, "DOUBLE")
+        except Exception as e:
+            print(f"Error adding field {output_field}: {e}")
+            okay = False
+            return okay
 
-#         #Your code
+        # Step 2: Calculate zonal statistics
+        temp_table = "in_memory\\temp_zonal_stats"
+        if arcpy.Exists(temp_table):
+            arcpy.management.Delete(temp_table)
 
+        try:
+            arcpy.sa.ZonalStatisticsAsTable(
+                in_zone_data=self.feature_class,
+                zone_field="OBJECTID",
+                in_value_raster=raster_path,
+                out_table=temp_table,
+                statistics_type=statistic_type
+            )
+        except Exception as e:
+            print(f"Problem calculating zonal statistics: {e}")
+            okay = False
+            return okay
 
+        # Step 3: Read results into a dictionary
+        zonal_results = {}
+        try:
+            with arcpy.da.SearchCursor(temp_table, ["OBJECTID_1", statistic_type]) as cursor:
+                for row in cursor:
+                    zonal_results[row[0]] = row[1]
+        except Exception as e:
+            print(f"Problem reading the zonal results table: {e}")
+            okay = False
+            return okay
 
-      
+        # Step 4: Update feature class with results
+        try:
+            with arcpy.da.UpdateCursor(self.feature_class, ["OBJECTID", output_field]) as cursor:
+                for row in cursor:
+                    obj_id = row[0]
+                    if obj_id in zonal_results:
+                        row[1] = zonal_results[obj_id]
+                        cursor.updateRow(row)
+        except Exception as e:
+            print(f"Problem updating the feature class: {e}")
+            okay = False
+            return okay
 
-#         # Create a temporary table to hold zonal statistics
-#         temp_table = "in_memory\\temp_zonal_stats"
-#         if arcpy.Exists(temp_table):
-#             arcpy.management.Delete(temp_table)
-        
-#         # Use an arcpy.sa command to calculate the 
-#         #   zonal stats.  Embed in a try/except block
+        # Step 5: Clean up
+        arcpy.management.Delete(temp_table)
 
-#         #  Your code
-
-
-        
-#         # Now join the results back and update the field
-#         zonal_results = {}
-        
-#         # First, read through the Zonal stats table we just created. 
-
-#         try:
-#             table_count = 0
-#             # NOTE:  the "OBJECTID_1" is needed because when Arc builds 
-#             #   the temporary zonal stats file, it adds its own new OBJECTID
-#             #   that ascends in incremental order. But the unique ID from the
-#             #   original attribute table is what we want to focus on -- its 
-#             #    name gets adjusted with an _1 at the end so the original value is kept
-#             #    but to keep it unique from the OBJECTID that Arc builds for the
-#             #    zonal table.  Kind of annoying. 
-
-#             with arcpy.da.SearchCursor(temp_table, ["OBJECTID_1", statistic_type]) as cursor:
-#                 for row in cursor:
-#                     zonal_results[row[0]] = row[1]
-#                     table_count+=1
-#             print(f"Processed {table_count} zonal stats")
-#         except Exception as e:
-#             print(f"Problem reading the zonal results table: {e}")
-#             okay = False
-#             return okay
-        
-
-        
-#         #Then Update the feature class with the zonal_results
-#         #  Use the Object ID to find the right 
-#         #    zonal stats number from the zonal_results dictionary
-#         #    as you go through the attribute table of the feature class
-#         print("Joining zonal stats back to Object ID")
-               
-#         # Your code
-
-
-
-
-#         # Clean up
-#         arcpy.management.Delete(temp_table)
-
-#         print(f"Zonal stats '{statistic_type}' added to field '{output_field}'.")
-#         return okay
+        print(f"Zonal stats '{statistic_type}' added to field '{output_field}'.")
+        return okay
 
     
-#     def save_as(self, output_path):
-#         """Save the current vector layer to a new feature class"""
-#         arcpy.management.CopyFeatures(self.feature_class, output_path)
-#         print(f"Saved to {output_path}")
+    def save_as(self, output_path):
+        """Save the current vector layer to a new feature class"""
+        arcpy.management.CopyFeatures(self.feature_class, output_path)
+        print(f"Saved to {output_path}")
 
 
-#     # Take our vector object and turn it into a pandas dataframe
+    # Take our vector object and turn it into a pandas dataframe
 
-#     def extract_to_pandas_df(self, fields=None):
-#         # set up tracker variable
-#         okay = True
+    def extract_to_pandas_df(self, fields=None):
+        # set up tracker variable
+        okay = True
 
-#         #First, get the list of fields to extract if the user did 
-#         #  not pass them
+        #First, get the list of fields to extract if the user did 
+        #  not pass them
 
-#         if fields is None: # If the user did not pass anything
-#             # List all field names (excluding geometry)
-#             fields = [f.name for f in arcpy.ListFields(self.feature_class) if f.type not in ('Geometry', 'OID')]
-#         else: 
-#             #check to make sure that the fields given are actually in the table, 
-#             #   and make sure to exclue the geometry and oid.
+        if fields is None: # If the user did not pass anything
+            # List all field names (excluding geometry)
+            fields = [f.name for f in arcpy.ListFields(self.feature_class) if f.type not in ('Geometry', 'OID')]
+        else: 
+            #check to make sure that the fields given are actually in the table, 
+            #   and make sure to exclue the geometry and oid.
 
-#             true_fields = [f.name for f in arcpy.ListFields(self.feature_class) if f.type not in ('Geometry', 'OID')]
+            true_fields = [f.name for f in arcpy.ListFields(self.feature_class) if f.type not in ('Geometry', 'OID')]
 
-#             #accumulate the ones that do not match
-#             disallowed = [user_f for user_f in fields if user_f not in true_fields]
+            #accumulate the ones that do not match
+            disallowed = [user_f for user_f in fields if user_f not in true_fields]
 
-#             # if the list is not empty, let the user know
-#             if len(disallowed) != 0:
-#                 print("Fields given by user are not valid for this table")
-#                 print(disallowed)
-#                 okay = False
-#                 return okay, None
+            # if the list is not empty, let the user know
+            if len(disallowed) != 0:
+                print("Fields given by user are not valid for this table")
+                print(disallowed)
+                okay = False
+                return okay, None
         
-#         # Step 2: Create a search cursor and extract rows
-#         #    to a "rows" list variable.  This is a very short 
-#         #    command -- should be old hat by now!  
+        # Step 2: Create a search cursor and extract rows
+        try:
+            with arcpy.da.SearchCursor(self.feature_class, fields) as cursor:
+                rows = [row for row in cursor]
+        except Exception as e:
+            print(f"Problem extracting rows: {e}")
+            okay = False
+            return okay, None
 
-#         # vvvvvvvvvvvvvvv
-#         # Your code: 
-
-
-#         # Step 3: Convert to pandas DataFrame
-#         df = pd.DataFrame(rows, columns=fields)
+        # Step 3: Convert to pandas DataFrame
+        df = pd.DataFrame(rows, columns=fields)
                 
-#         return okay, df
+        return okay, df
 
 
 # Uncomment this when you get to the appropriate block in the scripts

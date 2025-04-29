@@ -1,0 +1,7 @@
+Param,Value
+x_field,Shape_Area
+y_field,NDVI_mean
+outfile,NDVI_vs_ShapeArea_filtered.png
+x_min,100
+x_max,10000
+y_min,0.1

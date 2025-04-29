@@ -197,15 +197,13 @@ sp.scatterplot(x_field, y_field, x_min=1901, x_max = 2030)
 #  if x_min is not None:
 #           df_to_plot = df_to_plot[df_to_plot[x_field] >= x_min]
 #  You'll note that I use the same test for x_min not being "None". 
-# But what about the second line -- what is df_to_plot, 
-#    and what does this line achieve? 
-#  
-
+# But what about the second line -- what is df_to_plot, and what does this line achieve? 
+ 
 
 # Your answer:
-
-
-
+'''
+`df_to_plot` is a temporary copy of the full DataFrame. The line `df_to_plot = df_to_plot[df_to_plot[x_field] >= x_min]` filters the DataFrame so only rows where the `x_field` value >= `x_min` are kept. This is useful for limiting the scatterplot to a specific x-axis range. 
+'''
 
 
 ############################################################################
@@ -214,7 +212,7 @@ sp.scatterplot(x_field, y_field, x_min=1901, x_max = 2030)
 #  For our final show, we'll read the parameters we want to make
 #   the plot from an external file, and then use those to create
 #   the plot and write it to a PNG graphic file.  
-#  The control file with the parameters is a comma-delimted 
+#  The control file with the parameters is a comma-delimited 
 #   format -- .csv -- that can be easily read and written 
 #   from a spreadsheet program like excel (or even just a 
 #      text editor)
@@ -248,6 +246,18 @@ ok = sp.plot_from_file(param_file)
 if ok:
     print("Done plotting")
 
+ok = sp.plot_from_file('params_2.csv')
+if ok:
+    print("Done plotting second version")
+
+ok = sp.plot_from_file('params_3.csv')
+if ok:
+    print("Done plotting third version")
+
+ok = sp.plot_from_file('params_4.csv')
+if ok:
+    print("Done plotting fourth version")
+
 
 # Now check the output graphic and make sure it worked. 
 
@@ -265,15 +275,16 @@ if ok:
 #    numeric?   How might you make this work better?
 
 # Your answer
-
-
-
+'''
+I did in fact provide non-numeric field, and the scatterplot failed to render. To fix it, I added to the `plot_from_file` method to ensure that fields are numeric before creating the plot.
+'''
 
 # Question 8.2
 #  In your lab document, paste in a couple of the
 #    examples of the output .png files. 
-
-
+'''
+Examples are pasted.
+'''
 
 # Question 8.3
 #   I don't like having to type the name of the 
@@ -283,6 +294,6 @@ if ok:
 #   how you might achieve that?
 
 # Your answer:
-
-
-
+'''
+I could modify the `plot_from_file` method to combine the x and y field names and append a ".png" extension. For example, if the x field is "YEAR_BUILT" and the y field is "NDVI_mean", the output filename could be "YEAR_BUILT_NDVI_mean.png". 
+'''

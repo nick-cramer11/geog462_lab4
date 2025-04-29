@@ -1,0 +1,6 @@
+Param,Value
+x_field,YEAR_BUILT
+y_field,NDVI_mean
+outfile,NDVI_vs_YearBuilt_1950to2020.png
+x_min,1950
+x_max,2020

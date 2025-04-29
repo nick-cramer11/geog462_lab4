@@ -184,7 +184,7 @@ class SmartVectorLayer:
             fields = [f.name for f in arcpy.ListFields(self.feature_class) if f.type not in ('Geometry', 'OID')]
         else: 
             #check to make sure that the fields given are actually in the table, 
-            #   and make sure to exclue the geometry and oid.
+            #   and make sure to exclude the geometry and oid.
 
             true_fields = [f.name for f in arcpy.ListFields(self.feature_class) if f.type not in ('Geometry', 'OID')]
 
@@ -213,192 +213,188 @@ class SmartVectorLayer:
         return okay, df
 
 
-# Uncomment this when you get to the appropriate block in the scripts
-#  file and re-load the functions
+# Uncomment this when you get to the appropriate block in the scripts file and re-load the functions
 
-# class smartPanda(pd.DataFrame):
+class smartPanda(pd.DataFrame):
 
-#     # This next bit is advanced -- don't worry about it unless you're 
-#     # curious.  It has to do with the pandas dataframe
-#     # being a complicated thing that could be created from a variety
-#     #   of types, and also that it creates a new dataframe
-#     #   when it does operations.  The use of @property is called
-#     #   a "decorator".  The _constructor(self) is a specific 
-#     #   expectation of Pandas when it does operations.  This just
-#     #   tells it that when it does an operation, make the new thing
-#     #   into a special smartPanda type, not an original dataframe. 
+    # This next bit is advanced -- don't worry about it unless you're 
+    # curious.  It has to do with the pandas dataframe
+    # being a complicated thing that could be created from a variety
+    #   of types, and also that it creates a new dataframe
+    #   when it does operations.  The use of @property is called
+    #   a "decorator".  The _constructor(self) is a specific 
+    #   expectation of Pandas when it does operations.  This just
+    #   tells it that when it does an operation, make the new thing
+    #   into a special smartPanda type, not an original dataframe. 
 
-#     @property
-#     def _constructor(self):
-#         return smartPanda
+    @property
+    def _constructor(self):
+        return smartPanda
     
-#     # here, just set up a method to plot and to allow
-#     #   the user to define the min and max of the plot. 
+    # here, just set up a method to plot and to allow
+    #   the user to define the min and max of the plot. 
 
 
-#     def scatterplot(self, x_field, y_field, title=None, 
-#                     x_min=None, x_max=None, 
-#                     y_min=None, y_max=None):
-#         """Make a scatterplot of two columns, with validation."""
+    def scatterplot(self, x_field, y_field, title=None, 
+                    x_min=None, x_max=None, 
+                    y_min=None, y_max=None):
+        """Make a scatterplot of two columns, with validation."""
 
-#         # Validate
-#         for field in [x_field, y_field]:
-#             if field not in self.columns:
-#                 raise ValueError(f"Field '{field}' not found in DataFrame columns.")
+        # Validate
+        for field in [x_field, y_field]:
+            if field not in self.columns:
+                raise ValueError(f"Field '{field}' not found in DataFrame columns.")
 
-#         # filter the range
-#         df_to_plot = self
-#         if x_min is not None:
-#             df_to_plot = df_to_plot[df_to_plot[x_field] >= x_min]
-#         if x_max is not None:
-#             df_to_plot = df_to_plot[df_to_plot[x_field] <= x_max]
-#         if y_min is not None:
-#             df_to_plot = df_to_plot[df_to_plot[y_field] >= y_min]
-#         if y_max is not None:
-#             df_to_plot = df_to_plot[df_to_plot[y_field] <= y_max]
-
-
-
-#         # Proceed to plot
-#         plt.figure(figsize=(8,6))
-#         plt.scatter(df_to_plot[x_field], df_to_plot[y_field])
-#         plt.xlabel(x_field)
-#         plt.ylabel(y_field)
-#         plt.title(title if title else f"{y_field} vs {x_field}")
-#         plt.grid(True)
-#         plt.show()
-
-
-#     def mean_field(self, field):
-#         """Get mean of a field, ignoring NaN."""
-#         return self[field].mean(skipna=True)
-
-#     def save_scatterplot(self, x_field, y_field, outfile, title=None, 
-#                     x_min=None, x_max=None, 
-#                     y_min=None, y_max=None):
-#         """Make a scatterplot of two columns, with validation."""
-
-#         # Validate
-#         for field in [x_field, y_field]:
-#             if field not in self.columns:
-#                 raise ValueError(f"Field '{field}' not found in DataFrame columns.")
-
-#         # filter the range
-#         df_to_plot = self
-#         if x_min is not None:
-#             df_to_plot = df_to_plot[df_to_plot[x_field] >= x_min]
-#         if x_max is not None:
-#             df_to_plot = df_to_plot[df_to_plot[x_field] <= x_max]
-#         if y_min is not None:
-#             df_to_plot = df_to_plot[df_to_plot[y_field] >= y_min]
-#         if y_max is not None:
-#             df_to_plot = df_to_plot[df_to_plot[y_field] <= y_max]
+        # filter the range
+        df_to_plot = self
+        if x_min is not None:
+            df_to_plot = df_to_plot[df_to_plot[x_field] >= x_min]
+        if x_max is not None:
+            df_to_plot = df_to_plot[df_to_plot[x_field] <= x_max]
+        if y_min is not None:
+            df_to_plot = df_to_plot[df_to_plot[y_field] >= y_min]
+        if y_max is not None:
+            df_to_plot = df_to_plot[df_to_plot[y_field] <= y_max]
 
 
 
-#         # Proceed to plot
-#         plt.figure(figsize=(8,6))
-#         plt.scatter(df_to_plot[x_field], df_to_plot[y_field])
-#         plt.xlabel(x_field)
-#         plt.ylabel(y_field)
-#         plt.title(title if title else f"{y_field} vs {x_field}")
-#         plt.grid(True)
-#         plt.savefig(outfile)
-#         plt.close()
+        # Proceed to plot
+        plt.figure(figsize=(8,6))
+        plt.scatter(df_to_plot[x_field], df_to_plot[y_field])
+        plt.xlabel(x_field)
+        plt.ylabel(y_field)
+        plt.title(title if title else f"{y_field} vs {x_field}")
+        plt.grid(True)
+        plt.show()
 
-#     def plot_from_file(self, csv_control_file_path):
-#         #  This reads the file at csv_control_file_path
-#         #   and uses it to make a plot, and then save
-#         #   it.  
 
-#         #  First, use the pandas functionality to read the
-#         #    .csv file.  The file should have two columns:
-#         #   param and value
-#         #  the param is the name of the item of interest, for 
-#         #    example "in_file", and the value is the value 
-#         #    of that param. 
-#         #  The required params are:
-#         #     param   -> value type
-#         #     --------------------
-#         #     x_field -> string
-#         #     y_field -> string
-#         #     outfile -> string path to graphics file output
-#         #  Optional:
-#         #     x_min -> numeric
-#         #     x_max -> numeric
-#         #     y_min -> numeric
-#         #     y_max -> numeric
+    def mean_field(self, field):
+        """Get mean of a field, ignoring NaN."""
+        return self[field].mean(skipna=True)
+
+    def save_scatterplot(self, x_field, y_field, outfile, title=None, 
+                    x_min=None, x_max=None, 
+                    y_min=None, y_max=None):
+        """Make a scatterplot of two columns, with validation."""
+
+        # Validate
+        for field in [x_field, y_field]:
+            if field not in self.columns:
+                raise ValueError(f"Field '{field}' not found in DataFrame columns.")
+
+        # filter the range
+        df_to_plot = self
+        if x_min is not None:
+            df_to_plot = df_to_plot[df_to_plot[x_field] >= x_min]
+        if x_max is not None:
+            df_to_plot = df_to_plot[df_to_plot[x_field] <= x_max]
+        if y_min is not None:
+            df_to_plot = df_to_plot[df_to_plot[y_field] >= y_min]
+        if y_max is not None:
+            df_to_plot = df_to_plot[df_to_plot[y_field] <= y_max]
+
+
+
+        # Proceed to plot
+        plt.figure(figsize=(8,6))
+        plt.scatter(df_to_plot[x_field], df_to_plot[y_field])
+        plt.xlabel(x_field)
+        plt.ylabel(y_field)
+        plt.title(title if title else f"{y_field} vs {x_field}")
+        plt.grid(True)
+        plt.savefig(outfile)
+        plt.close()
+
+    def plot_from_file(self, csv_control_file_path):
+        #  This reads the file at csv_control_file_path
+        #   and uses it to make a plot, and then save
+        #   it.  
+
+        #  First, use the pandas functionality to read the
+        #    .csv file.  The file should have two columns:
+        #   param and value
+        #  the param is the name of the item of interest, for 
+        #    example "in_file", and the value is the value 
+        #    of that param. 
+        #  The required params are:
+        #     param   -> value type
+        #     --------------------
+        #     x_field -> string
+        #     y_field -> string
+        #     outfile -> string path to graphics file output
+        #  Optional:
+        #     x_min -> numeric
+        #     x_max -> numeric
+        #     y_min -> numeric
+        #     y_max -> numeric
              
 
-#         try: 
-#             params = pd.read_csv(csv_control_file_path)
-#         except Exception as e:
-#             print(f"Problem reading the {csv_control_file_path}")
-#             return False
+        try: 
+            params = pd.read_csv(csv_control_file_path)
+        except Exception as e:
+            print(f"Problem reading the {csv_control_file_path}")
+            return False
         
-#         # Then we'll turn it into a dictionary
-#         #  To do this, we'll use a new functionality that you'll
-#         #  see in Python a lot -- "zip".   Look it up!  
-#         # Also, you can see I'm doing a trick with the 
-#         #  definition of the dictionary -- 
+        # Then we'll turn it into a dictionary
+        #  To do this, we'll use a new functionality that you'll
+        #  see in Python a lot -- "zip".   Look it up!  
+        # Also, you can see I'm doing a trick with the 
+        #  definition of the dictionary -- 
         
-#         try:
-#             param_dict ={k.strip(): v for k,v in zip(params['Param'], params['Value'])}
+        try:
+            param_dict ={k.strip(): v for k,v in zip(params['Param'], params['Value'])}
 
-#         except Exception as e:
-#             print(f"Problem setting up dictionary: {e}")
+        except Exception as e:
+            print(f"Problem setting up dictionary: {e}")
 
-#         # Then check that the required params are present
-#         # required params
-#         required_params = ["x_field", "y_field", "outfile"]
+        # Then check that the required params are present
+        # required params
+        required_params = ["x_field", "y_field", "outfile"]
 
-#         #  Use a list comprehension and the .keys() to test 
-#         #   if the required ones are in the dictionary
+        #  Use a list comprehension and the .keys() to test 
+        #   if the required ones are in the dictionary
 
-#         missing = [m for m in required_params if m not in param_dict.keys()]
-#         if missing:
-#             print("The param file needs to have these additional parameters")
-#             print(missing)
-#             return False
-
-
-#         #  Now add in "None" vals for the 
-#         #    optional params if the user does not set them
+        missing = [m for m in required_params if m not in param_dict.keys()]
+        if missing:
+            print("The param file needs to have these additional parameters")
+            print(missing)
+            return False
 
 
-#         optional_params = ["x_min", "x_max", "y_min", "y_max"]
-#         # go through the optional params, and if one is 
-#         #   is not in the param_dict, add it but give it the 
-#         #   value of "None" so the plotter won't set it. 
+        #  Now add in "None" vals for the 
+        #    optional params if the user does not set them
+
+
+        optional_params = ["x_min", "x_max", "y_min", "y_max"]
+        # go through the optional params, and if one is 
+        #   is not in the param_dict, add it but give it the 
+        #   value of "None" so the plotter won't set it. 
 
        
-#         for p in optional_params:
-#             if p not in param_dict.keys():
-#                 param_dict[p] = None
+        for p in optional_params:
+            if p not in param_dict.keys():
+                param_dict[p] = None
 
-#         # Finally, do the plot! 
-#         try:
-#             self.save_scatterplot(param_dict['x_field'], 
-#                                param_dict['y_field'], 
-#                                param_dict['outfile'], 
-#                                x_min = param_dict['x_min'], 
-#                                x_max = param_dict['x_max'],
-#                                y_min = param_dict['y_min'],
-#                                y_max = param_dict['y_max'])
-#             print(f"wrote to {params}")
-#             return True   # report back success
-#         except Exception as e:
-#             print(f"Problem saving the scatterplot: {e}")
-
-        
-            
-        
-        
+        # Convert numeric parameters from strings to float
+        for p in optional_params:
+            if param_dict[p] is not None:
+                try:
+                    param_dict[p] = float(param_dict[p])
+                except ValueError:
+                    print(f"Could not convert {p} value '{param_dict[p]}' to float.")
+                    param_dict[p] = None
 
 
-
-
-
-
-
-
+        # Finally, do the plot! 
+        try:
+            self.save_scatterplot(param_dict['x_field'], 
+                               param_dict['y_field'], 
+                               param_dict['outfile'], 
+                               x_min = param_dict['x_min'], 
+                               x_max = param_dict['x_max'],
+                               y_min = param_dict['y_min'],
+                               y_max = param_dict['y_max'])
+            print(f"wrote to {params}")
+            return True   # report back success
+        except Exception as e:
+            print(f"Problem saving the scatterplot: {e}")

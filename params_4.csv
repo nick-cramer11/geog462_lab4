@@ -1,0 +1,8 @@
+Param,Value
+x_field,YEAR_BUILT
+y_field,NDVI_mean
+outfile,NDVI_vs_YearBuilt_outliers_removed.png
+x_min,1900
+x_max,2025
+y_min,-0.1
+y_max,1
